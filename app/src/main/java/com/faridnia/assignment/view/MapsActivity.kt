@@ -48,7 +48,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        viewModel.changeProgressState()
+        viewModel.fetchVehicles()
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
