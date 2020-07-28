@@ -1,22 +1,21 @@
 package com.faridnia.assignment.view
 
+
 import android.location.Location
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.faridnia.assignment.R
+import com.faridnia.assignment.network.model.Vehicle
 import com.faridnia.assignment.viewModel.MapsActivityViewModel
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_maps.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -60,8 +59,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         viewModel.vehicles.observe(this, Observer {
             if (it.isNotEmpty() && isMapReady) {
                 it.forEach { vehicle ->
-                    val vehicleLatLng = LatLng(vehicle.lat, vehicle.lng)
-                    placeMarkerOnMap(vehicleLatLng)
+                    placeMarkerOnMap(vehicle)
                 }
             }
         })
@@ -75,9 +73,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tehran, DEFAULT_ZOOM))
     }
 
-    private fun placeMarkerOnMap(location: LatLng) {
-        val markerOptions = MarkerOptions().position(location)
-        mMap.addMarker(markerOptions)
+    private fun placeMarkerOnMap(vehicle: Vehicle) {
+        val vehicleLatLng = LatLng(vehicle.lat, vehicle.lng)
+        MapUtils().getMarkerIcon(this, vehicle.imageUrl) {
+            val options = MarkerOptions()
+                .position(vehicleLatLng)
+                .icon(it)
+            mMap.addMarker(options)
+        }
     }
 
     companion object {
