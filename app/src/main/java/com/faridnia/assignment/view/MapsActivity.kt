@@ -11,11 +11,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.faridnia.assignment.R
 import com.faridnia.assignment.network.model.Vehicle
 import com.faridnia.assignment.viewModel.MapsActivityViewModel
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_maps.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -61,6 +60,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 it.forEach { vehicle ->
                     placeMarkerOnMap(vehicle)
                 }
+                mMap.animateCamera(getBetterZoom(it))
             }
         })
     }
@@ -68,14 +68,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         isMapReady = true
-        val tehran = LatLng(35.6, 51.3)
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(tehran))
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tehran, DEFAULT_ZOOM))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(TEHRAN, DEFAULT_ZOOM))
     }
 
     private fun placeMarkerOnMap(vehicle: Vehicle) {
         val vehicleLatLng = LatLng(vehicle.lat, vehicle.lng)
-        MapUtils().getMarkerIcon(this, vehicle.imageUrl, vehicle.bearing) {
+        getMarkerIcon(this, vehicle.imageUrl, vehicle.bearing) {
             val options = MarkerOptions()
                 .position(vehicleLatLng)
                 .icon(it)
@@ -85,6 +83,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private val TAG = MapsActivity::class.java.simpleName
+        private val TEHRAN = LatLng(35.6, 51.3)
         private const val DEFAULT_ZOOM = 11F
         private const val KEY_CAMERA_POSITION = "camera_position"
         private const val KEY_LOCATION = "location"
