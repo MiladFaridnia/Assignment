@@ -1,4 +1,4 @@
-package data.response
+package com.faridnia.assignment
 
 
 import com.google.gson.annotations.SerializedName
