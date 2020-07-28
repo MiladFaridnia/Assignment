@@ -75,7 +75,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun placeMarkerOnMap(vehicle: Vehicle) {
         val vehicleLatLng = LatLng(vehicle.lat, vehicle.lng)
-        MapUtils().getMarkerIcon(this, vehicle.imageUrl) {
+        MapUtils().getMarkerIcon(this, vehicle.imageUrl, vehicle.bearing) {
             val options = MarkerOptions()
                 .position(vehicleLatLng)
                 .icon(it)
