@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.faridnia.assignment.network.BASE_URL
 import com.faridnia.assignment.network.VehicleService
+import com.faridnia.assignment.network.model.Vehicle
 import com.faridnia.assignment.network.model.Vehicles
 import com.google.gson.Gson
 import retrofit2.Call
@@ -15,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MapsActivityRepository {
 
     val showProgress = MutableLiveData<Boolean>()
+    val vehicles = MutableLiveData<List<Vehicle>>()
 
     fun changeProgressState() {
         showProgress.value = !(showProgress.value != null && showProgress.value!!)
@@ -37,7 +39,7 @@ class MapsActivityRepository {
             override fun onResponse(call: Call<Vehicles>, response: Response<Vehicles>
             ) {
                 showProgress.value = false
-                val vehicles = response.body()?.vehicles
+                vehicles.value = response.body()?.vehicles
                 Log.d("Milad", "Response: ${Gson().toJson(vehicles)}")
             }
         })
