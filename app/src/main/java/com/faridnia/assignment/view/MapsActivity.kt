@@ -25,6 +25,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var cameraPosition: CameraPosition? = null
     private var lastKnownLocation: Location? = null
     private lateinit var viewModel: MapsActivityViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -35,7 +36,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         setContentView(R.layout.activity_maps)
         val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
+            .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         viewModel = ViewModelProvider(this).get(MapsActivityViewModel::class.java)
@@ -48,7 +49,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        viewModel.fetchVehicles()
+        if (viewModel.vehicles.value == null) {
+            viewModel.fetchVehicles()
+        }
 
     }
 
