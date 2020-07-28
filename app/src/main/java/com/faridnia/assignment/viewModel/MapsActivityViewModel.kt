@@ -1,6 +1,7 @@
 package com.faridnia.assignment.viewModel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.faridnia.assignment.network.model.Vehicle
@@ -21,7 +22,7 @@ class MapsActivityViewModel : AndroidViewModel(Application()) {
         repository.changeProgressState()
     }
 
-    fun fetchVehicles(){
-        repository.fetchVehicles()
+    fun fetchVehicles(context :Context){
+        repository.fetchVehicles(context)
     }
 }

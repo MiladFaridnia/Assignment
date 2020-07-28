@@ -1,6 +1,8 @@
 package com.faridnia.assignment.repository
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import com.faridnia.assignment.isNetworkAvailable
 import com.faridnia.assignment.network.RetrofitClientInstance
 import com.faridnia.assignment.network.VehicleService
 import com.faridnia.assignment.network.model.Vehicle
@@ -18,7 +20,19 @@ class MapsActivityRepository {
         showProgress.value = !(showProgress.value != null && showProgress.value!!)
     }
 
-    fun fetchVehicles() {
+    fun fetchVehicles(context: Context?) {
+        if (isNetworkAvailable(context)) {
+            fetchDataFromServer()
+        } else {
+            fetchDataFromDatabase()
+        }
+    }
+
+    private fun fetchDataFromDatabase() {
+
+    }
+
+    private fun fetchDataFromServer() {
         showProgress.value = true
 
         val service = RetrofitClientInstance.retrofitInstance?.create(VehicleService::class.java)

@@ -52,7 +52,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         if (viewModel.vehicles.value == null) {
-            viewModel.fetchVehicles()
+            viewModel.fetchVehicles(this)
         }
 
         viewModel.vehicles.observe(this, Observer {
