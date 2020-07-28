@@ -1,12 +1,10 @@
 package com.faridnia.assignment.repository
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.faridnia.assignment.network.RetrofitClientInstance
 import com.faridnia.assignment.network.VehicleService
 import com.faridnia.assignment.network.model.Vehicle
 import com.faridnia.assignment.network.model.Vehicles
-import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -37,7 +35,6 @@ class MapsActivityRepository {
             ) {
                 showProgress.value = false
                 vehicles.value = response.body()?.vehicles
-                Log.d("Milad", "Response: ${Gson().toJson(vehicles)}")
             }
         })
     }
