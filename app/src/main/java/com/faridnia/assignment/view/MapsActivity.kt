@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_maps.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private var isMapReady: Boolean = false
     private lateinit var mMap: GoogleMap
     private var cameraPosition: CameraPosition? = null
     private var lastKnownLocation: Location? = null
@@ -35,6 +36,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         setContentView(R.layout.activity_maps)
+
+        isMapReady = false
+
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -53,19 +57,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             viewModel.fetchVehicles()
         }
 
+        viewModel.vehicles.observe(this, Observer {
+            if (it.isNotEmpty() && isMapReady) {
+                it.forEach { vehicle ->
+                    val vehicleLatLng = LatLng(vehicle.lat, vehicle.lng)
+                    placeMarkerOnMap(vehicleLatLng)
+                }
+            }
+        })
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
+        isMapReady = true
         val tehran = LatLng(35.6, 51.3)
-        mMap.addMarker(MarkerOptions().position(tehran).title("Marker in Tehran"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(tehran))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tehran, DEFAULT_ZOOM))
+    }
+
+    private fun placeMarkerOnMap(location: LatLng) {
+        val markerOptions = MarkerOptions().position(location)
+        mMap.addMarker(markerOptions)
     }
 
     companion object {
         private val TAG = MapsActivity::class.java.simpleName
-        private const val DEFAULT_ZOOM = 15
+        private const val DEFAULT_ZOOM = 11F
         private const val KEY_CAMERA_POSITION = "camera_position"
         private const val KEY_LOCATION = "location"
     }
