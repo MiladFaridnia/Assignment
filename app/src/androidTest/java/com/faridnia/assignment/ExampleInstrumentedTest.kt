@@ -2,6 +2,8 @@ package com.faridnia.assignment
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.faridnia.assignment.network.RetrofitClientInstance
+import com.faridnia.assignment.network.VehicleService
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,5 +22,14 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.faridnia.assignment", appContext.packageName)
+    }
+
+    @Test
+    fun canGetVehiclesMethod () {
+        // call the api
+        val service = RetrofitClientInstance.retrofitInstance?.create(VehicleService::class.java)
+        val response = service?.getVehicles()?.execute()
+        // verify the response is OK
+        assert(response?.code()?.equals(200)!!)
     }
 }
