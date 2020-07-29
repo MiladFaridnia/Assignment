@@ -1,6 +1,6 @@
 package com.faridnia.assignment.repository
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.faridnia.assignment.network.RetrofitClientInstance
 import com.faridnia.assignment.network.VehicleService
@@ -28,6 +28,10 @@ class VehicleRepository(private val vehicleDao: VehicleDao) {
 
     suspend fun deleteAll() {
         vehicleDao.deleteAll()
+    }
+
+    fun getAll(): LiveData<List<Vehicle>> {
+        return vehicleDao.getAll()
     }
 
     fun fetchVehicles() {
