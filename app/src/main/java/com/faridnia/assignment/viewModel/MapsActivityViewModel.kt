@@ -18,10 +18,8 @@ class MapsActivityViewModel(application : Application) : AndroidViewModel(applic
 
     init {
         val vehicleDatabase = VehicleDatabase.getDatabase(application,viewModelScope)
-        val vehicleDao =  vehicleDatabase.vehicleDao()
-        vehicleRepository =
-            VehicleRepository(vehicleDao)
-        this.vehicles = vehicleDao.getAll()
+        vehicleRepository = VehicleRepository(vehicleDatabase.vehicleDao())
+        this.vehicles = vehicleRepository.getAll()
         this.showProgress = vehicleRepository.showProgress
     }
 
