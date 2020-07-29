@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_maps.*
+import kotlinx.android.synthetic.main.fragment_maps.view.*
 
 class MapsFragment : Fragment() , OnMapReadyCallback {
 
@@ -45,7 +47,15 @@ class MapsFragment : Fragment() , OnMapReadyCallback {
 
         observeVehicles()
 
+        setonClickListenerForRefreshButton(rootView)
+
         return rootView
+    }
+
+    private fun setonClickListenerForRefreshButton(rootView: View) {
+        rootView.refresh.setOnClickListener {
+            fetchData()
+        }
     }
 
     private fun getMapFragment() {
@@ -64,9 +74,9 @@ class MapsFragment : Fragment() , OnMapReadyCallback {
 
     private fun fetchData() {
         if (isNetworkAvailable(activity)) {
-            if (viewModel.vehicles.value == null) {
-                viewModel.fetchVehicles()
-            }
+            viewModel.fetchVehicles()
+        } else {
+            Toast.makeText(context, "Network Unavailable", Toast.LENGTH_LONG).show()
         }
     }
 
