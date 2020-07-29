@@ -1,4 +1,4 @@
-package com.faridnia.assignment.network.model
+package com.faridnia.assignment.room
 
 import com.google.gson.annotations.SerializedName
 

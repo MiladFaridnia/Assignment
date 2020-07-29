@@ -1,28 +1,39 @@
 package com.faridnia.assignment.viewModel
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import com.faridnia.assignment.network.model.Vehicle
-import com.faridnia.assignment.repository.MapsActivityRepository
+import androidx.lifecycle.viewModelScope
+import com.faridnia.assignment.room.Vehicle
+import com.faridnia.assignment.room.VehicleDatabase
+import com.faridnia.assignment.repository.VehicleRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class MapsActivityViewModel : AndroidViewModel(Application()) {
+class MapsActivityViewModel(application : Application) : AndroidViewModel(application) {
 
-    private val repository = MapsActivityRepository()
+    private val vehicleRepository : VehicleRepository
     val showProgress: LiveData<Boolean>
-    var vehicles: LiveData<List<Vehicle>>
+    internal val vehicles: LiveData<List<Vehicle>>
 
     init {
-        this.showProgress = repository.showProgress
-        this.vehicles = repository.vehicles
+        val vehicleDatabase = VehicleDatabase.getDatabase(application,viewModelScope)
+        val vehicleDao =  vehicleDatabase.vehicleDao()
+        vehicleRepository =
+            VehicleRepository(vehicleDao)
+        this.vehicles = vehicleDao.getAll()
+        this.showProgress = vehicleRepository.showProgress
     }
 
     fun changeProgressState() {
-        repository.changeProgressState()
+        vehicleRepository.changeProgressState()
     }
 
-    fun fetchVehicles(context :Context){
-        repository.fetchVehicles(context)
+    fun fetchVehicles(){
+        vehicleRepository.fetchVehicles()
+    }
+
+    fun insert(vehicle: Vehicle) = viewModelScope.launch(Dispatchers.IO) {
+        vehicleRepository.insert(vehicle)
     }
 }

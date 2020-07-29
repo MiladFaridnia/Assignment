@@ -9,7 +9,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.faridnia.assignment.R
-import com.faridnia.assignment.network.model.Vehicle
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -18,11 +17,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.android.synthetic.main.marker_layout.view.*
 
-fun getBetterZoom(vehicles: List<Vehicle>): CameraUpdate {
+fun getBetterZoom(vehiclesLatLngs: List<LatLng>): CameraUpdate {
     val builder = LatLngBounds.Builder()
 
-    vehicles.forEach { vehicle ->
-        builder.include(LatLng(vehicle.lat, vehicle.lng))
+    vehiclesLatLngs.forEach { vehicleLatLng ->
+            builder.include(vehicleLatLng)
     }
 
     val bounds = builder.build()
