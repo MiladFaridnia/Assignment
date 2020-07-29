@@ -55,7 +55,6 @@ class VehicleRepository(private val vehicleDao: VehicleDao) {
                     deleteAll() //Because cars does not have ids from server
                     vehicles.value?.forEach {
                         insert(it)
-                        Log.d("Milad", "inserted${it.vehicleId}")
                     }
                 }
             }
