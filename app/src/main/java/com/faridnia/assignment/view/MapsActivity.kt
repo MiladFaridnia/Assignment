@@ -3,6 +3,7 @@ package com.faridnia.assignment.view
 
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
@@ -49,6 +50,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             ViewModelProvider.AndroidViewModelFactory.getInstance(this.application))
             .get(MapsActivityViewModel::class.java)
 
+        if (isNetworkAvailable(this)) {
+            if (viewModel.vehicles.value == null) {
+                viewModel.fetchVehicles()
+            }
+        }
+
         viewModel.showProgress.observe(this, Observer {
             if (it) {
                 progress.visibility = VISIBLE
@@ -57,26 +64,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        if (isNetworkAvailable(this)) {
-            if (viewModel.vehicles.value == null) {
-                viewModel.fetchVehicles()
-            }
-        } else {
-            showVehicleListFragment()
-        }
-
         viewModel.vehicles.observe(this, Observer { list ->
             if (list!= null && list.isNotEmpty() && isMapReady) {
-                list.forEach { vehicle ->
-                    placeMarkerOnMap(vehicle)
+                if (isNetworkAvailable(this)) {
+                    list.forEach { vehicle ->
+                        placeMarkerOnMap(vehicle)
+                    }
+                    mMap.animateCamera(getBetterZoom(list.map { LatLng(it.lat!!, it.lng!!) }))
+                } else {
+                    showVehicleListBottomsheet(list)
+                    list.forEach {
+                        Log.d("Milad", "items offline: " + it.imageUrl)
+                    }
                 }
-                mMap.animateCamera(getBetterZoom(list.map { LatLng(it.lat!!,it.lng!!) }))
             }
         })
     }
 
-    private fun showVehicleListFragment() {
-
+    private fun showVehicleListBottomsheet(
+        vehicles: List<Vehicle>?
+    ) {
+        if (vehicles!=null) {
+            BottomSheet(this, vehicles).show()
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
