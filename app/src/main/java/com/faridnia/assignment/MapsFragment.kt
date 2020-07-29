@@ -1,15 +1,17 @@
-package com.faridnia.assignment.view
-
+package com.faridnia.assignment
 
 import android.os.Bundle
-import android.view.View.GONE
-import android.view.View.VISIBLE
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.faridnia.assignment.R
-import com.faridnia.assignment.isNetworkAvailable
 import com.faridnia.assignment.room.Vehicle
+import com.faridnia.assignment.view.BottomSheet
+import com.faridnia.assignment.view.getBetterZoom
+import com.faridnia.assignment.view.getMarkerIcon
 import com.faridnia.assignment.viewModel.MapsActivityViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -17,22 +19,23 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.android.synthetic.main.fragment_maps.*
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsFragment : Fragment() , OnMapReadyCallback {
 
     private var isMapReady: Boolean = false
     private lateinit var mMap: GoogleMap
     private lateinit var viewModel: MapsActivityViewModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContentView(R.layout.activity_maps)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val rootView = inflater.inflate(R.layout.fragment_maps, container, false)
 
         isMapReady = false
 
-        initMapFragment()
+        getMapFragment()
 
         initViewModel()
 
@@ -41,24 +44,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         observeProgressbarState()
 
         observeVehicles()
+
+        return rootView
     }
 
-    private fun initMapFragment() {
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+    private fun getMapFragment() {
+        val mapFragment =
+            childFragmentManager.fragments[0] as SupportMapFragment?
+        mapFragment!!.getMapAsync(this)
     }
 
     private fun initViewModel() {
         viewModel = ViewModelProvider(
             this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(this.application)
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
         )
             .get(MapsActivityViewModel::class.java)
     }
 
     private fun fetchData() {
-        if (isNetworkAvailable(this)) {
+        if (isNetworkAvailable(activity)) {
             if (viewModel.vehicles.value == null) {
                 viewModel.fetchVehicles()
             }
@@ -68,11 +73,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun observeVehicles() {
         viewModel.vehicles.observe(this, Observer { list ->
             if (list != null && list.isNotEmpty() && isMapReady) {
-                if (isNetworkAvailable(this)) {
+                if (isNetworkAvailable(activity)) {
                     list.forEach { vehicle ->
                         placeMarkerOnMap(vehicle)
                     }
-                    mMap.animateCamera(getBetterZoom(list.map { LatLng(it.lat!!, it.lng!!) }))
+                    mMap.animateCamera(
+                        getBetterZoom(list.map { LatLng(it.lat!!, it.lng!!) })
+                    )
                 } else {
                     showVehicleListBottomSheet(list)
                 }
@@ -83,25 +90,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun observeProgressbarState() {
         viewModel.showProgress.observe(this, Observer {
             if (it) {
-                progress.visibility = VISIBLE
+                progress.visibility = View.VISIBLE
             } else {
-                progress.visibility = GONE
+                progress.visibility = View.GONE
             }
         })
     }
 
-    private fun showVehicleListBottomSheet(
-        vehicles: List<Vehicle>?
-    ) {
+    private fun showVehicleListBottomSheet(vehicles: List<Vehicle>?) {
         if (vehicles != null) {
-            BottomSheet(this, vehicles).show()
+            BottomSheet(activity as FragmentActivity, vehicles).show()
         }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         isMapReady = true
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(TEHRAN, DEFAULT_ZOOM))
+        mMap.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                TEHRAN,
+                DEFAULT_ZOOM
+            ))
     }
 
     private fun placeMarkerOnMap(vehicle: Vehicle) {
@@ -109,7 +118,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             && vehicle.imageUrl != null && vehicle.bearing != null
         ) {
             val vehicleLatLng = LatLng(vehicle.lat, vehicle.lng)
-            getMarkerIcon(this, vehicle.imageUrl, vehicle.bearing) {
+            getMarkerIcon(activity?.baseContext!!, vehicle.imageUrl, vehicle.bearing) {
                 val options = MarkerOptions()
                     .position(vehicleLatLng)
                     .icon(it)
@@ -119,9 +128,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     companion object {
-        private val TAG = MapsActivity::class.java.simpleName
         private val TEHRAN = LatLng(35.6, 51.3)
         private const val DEFAULT_ZOOM = 11F
-    }
 
+        @JvmStatic
+        fun newInstance() = MapsFragment()
+    }
 }
