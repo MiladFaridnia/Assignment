@@ -26,6 +26,10 @@ class VehicleRepository(private val vehicleDao: VehicleDao) {
         vehicleDao.insert(vehicle)
     }
 
+    suspend fun deleteAll() {
+        vehicleDao.deleteAll()
+    }
+
     fun fetchVehicles() {
         showProgress.value = true
 
@@ -48,6 +52,7 @@ class VehicleRepository(private val vehicleDao: VehicleDao) {
 
             private fun insertToDB() {
                 GlobalScope.launch {
+                    deleteAll() //Because cars does not have ids from server
                     vehicles.value?.forEach {
                         insert(it)
                         Log.d("Milad", "inserted${it.vehicleId}")
