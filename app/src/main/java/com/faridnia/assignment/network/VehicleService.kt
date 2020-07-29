@@ -1,6 +1,6 @@
 package com.faridnia.assignment.network
 
-import com.faridnia.assignment.network.model.Vehicles
+import com.faridnia.assignment.room.Vehicles
 import retrofit2.Call
 import retrofit2.http.GET
 

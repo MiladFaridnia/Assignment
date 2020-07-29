@@ -9,9 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.faridnia.assignment.R
-import com.faridnia.assignment.network.model.Vehicle
+import com.faridnia.assignment.isNetworkAvailable
+import com.faridnia.assignment.room.Vehicle
 import com.faridnia.assignment.viewModel.MapsActivityViewModel
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -41,7 +45,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        viewModel = ViewModelProvider(this).get(MapsActivityViewModel::class.java)
+        viewModel = ViewModelProvider(this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(this.application))
+            .get(MapsActivityViewModel::class.java)
 
         viewModel.showProgress.observe(this, Observer {
             if (it) {
@@ -51,18 +57,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        if (viewModel.vehicles.value == null) {
-            viewModel.fetchVehicles(this)
+        if (isNetworkAvailable(this)) {
+            if (viewModel.vehicles.value == null) {
+                viewModel.fetchVehicles()
+            }
+        } else {
+            showVehicleListFragment()
         }
 
-        viewModel.vehicles.observe(this, Observer {
-            if (it.isNotEmpty() && isMapReady) {
-                it.forEach { vehicle ->
+        viewModel.vehicles.observe(this, Observer { list ->
+            if (list!= null && list.isNotEmpty() && isMapReady) {
+                list.forEach { vehicle ->
                     placeMarkerOnMap(vehicle)
                 }
-                mMap.animateCamera(getBetterZoom(it))
+                mMap.animateCamera(getBetterZoom(list.map { LatLng(it.lat!!,it.lng!!) }))
             }
         })
+    }
+
+    private fun showVehicleListFragment() {
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -72,12 +86,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun placeMarkerOnMap(vehicle: Vehicle) {
-        val vehicleLatLng = LatLng(vehicle.lat, vehicle.lng)
-        getMarkerIcon(this, vehicle.imageUrl, vehicle.bearing) {
-            val options = MarkerOptions()
-                .position(vehicleLatLng)
-                .icon(it)
-            mMap.addMarker(options)
+        if (vehicle.lat != null && vehicle.lng != null
+            && vehicle.imageUrl != null && vehicle.bearing != null
+        ) {
+            val vehicleLatLng = LatLng(vehicle.lat, vehicle.lng)
+            getMarkerIcon(this, vehicle.imageUrl, vehicle.bearing) {
+                val options = MarkerOptions()
+                    .position(vehicleLatLng)
+                    .icon(it)
+                mMap.addMarker(options)
+            }
         }
     }
 

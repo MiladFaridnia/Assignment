@@ -1,38 +1,32 @@
 package com.faridnia.assignment.repository
 
-import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import com.faridnia.assignment.isNetworkAvailable
 import com.faridnia.assignment.network.RetrofitClientInstance
 import com.faridnia.assignment.network.VehicleService
-import com.faridnia.assignment.network.model.Vehicle
-import com.faridnia.assignment.network.model.Vehicles
+import com.faridnia.assignment.room.Vehicles
+import com.faridnia.assignment.room.Vehicle
+import com.faridnia.assignment.room.VehicleDao
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MapsActivityRepository {
+class VehicleRepository(private val vehicleDao: VehicleDao) {
 
-    val showProgress = MutableLiveData<Boolean>()
     val vehicles = MutableLiveData<List<Vehicle>>()
+    val showProgress = MutableLiveData<Boolean>()
 
     fun changeProgressState() {
         showProgress.value = !(showProgress.value != null && showProgress.value!!)
     }
 
-    fun fetchVehicles(context: Context?) {
-        if (isNetworkAvailable(context)) {
-            fetchDataFromServer()
-        } else {
-            fetchDataFromDatabase()
-        }
+    suspend fun insert(vehicle: Vehicle) {
+        vehicleDao.insert(vehicle)
     }
 
-    private fun fetchDataFromDatabase() {
-
-    }
-
-    private fun fetchDataFromServer() {
+    fun fetchVehicles() {
         showProgress.value = true
 
         val service = RetrofitClientInstance.retrofitInstance?.create(VehicleService::class.java)
@@ -49,6 +43,16 @@ class MapsActivityRepository {
             ) {
                 showProgress.value = false
                 vehicles.value = response.body()?.vehicles
+                insertToDB()
+            }
+
+            private fun insertToDB() {
+                GlobalScope.launch {
+                    vehicles.value?.forEach {
+                        insert(it)
+                        Log.d("Milad", "inserted${it.vehicleId}")
+                    }
+                }
             }
         })
     }
