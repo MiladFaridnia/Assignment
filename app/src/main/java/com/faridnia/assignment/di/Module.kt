@@ -1,6 +1,7 @@
 package com.faridnia.assignment.di
 
 import androidx.room.Room
+import com.faridnia.assignment.MapsFragment
 import com.faridnia.assignment.network.RetrofitClientInstance.BASE_URL
 import com.faridnia.assignment.network.VehicleService
 import com.faridnia.assignment.repository.VehicleRepository
@@ -9,6 +10,7 @@ import com.faridnia.assignment.viewModel.MapsActivityViewModel
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.fragment.dsl.fragment
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -33,6 +35,10 @@ val repositoryModule = module {
     }
 
     single { get<VehicleDatabase>().vehicleDao() }
+}
+
+val fragmentModules = module {
+    fragment { MapsFragment() }
 }
 
 val apiModule = module {

@@ -2,19 +2,21 @@ package com.faridnia.assignment.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.faridnia.assignment.network.RetrofitClientInstance
 import com.faridnia.assignment.network.VehicleService
 import com.faridnia.assignment.room.Vehicles
 import com.faridnia.assignment.room.Vehicle
 import com.faridnia.assignment.room.VehicleDao
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class VehicleRepository(private val vehicleDao: VehicleDao) {
+class VehicleRepository(private val vehicleDao: VehicleDao) : KoinComponent {
 
+    private val service : VehicleService by inject()
     val vehicles = MutableLiveData<List<Vehicle>>()
     val showProgress = MutableLiveData<Boolean>()
 
@@ -37,10 +39,9 @@ class VehicleRepository(private val vehicleDao: VehicleDao) {
     fun fetchVehicles() {
         showProgress.value = true
 
-        val service = RetrofitClientInstance.retrofitInstance?.create(VehicleService::class.java)
-        val call = service?.getVehicles()
+        val call = service.getVehicles()
 
-        call?.enqueue(object : Callback<Vehicles> {
+        call.enqueue(object : Callback<Vehicles> {
 
             override fun onFailure(call: Call<Vehicles>, t: Throwable) {
                 showProgress.value = false

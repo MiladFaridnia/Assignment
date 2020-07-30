@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.faridnia.assignment.room.Vehicle
 import com.faridnia.assignment.view.BottomSheet
 import com.faridnia.assignment.view.getBetterZoom
@@ -72,7 +71,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun observeVehicles() {
-        viewModel.vehicles.observe(this, Observer { list ->
+        viewModel.vehicles.observe(viewLifecycleOwner, Observer { list ->
             if (list != null && list.isNotEmpty() && isMapReady) {
                 if (isNetworkAvailable(activity)) {
                     list.forEach { vehicle ->
@@ -89,7 +88,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun observeProgressbarState() {
-        viewModel.showProgress.observe(this, Observer {
+        viewModel.showProgress.observe(viewLifecycleOwner, Observer {
             if (it) {
                 progress.visibility = View.VISIBLE
             } else {
@@ -131,8 +130,5 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     companion object {
         private val TEHRAN = LatLng(35.6, 51.3)
         private const val DEFAULT_ZOOM = 11F
-
-        @JvmStatic
-        fun newInstance() = MapsFragment()
     }
 }
