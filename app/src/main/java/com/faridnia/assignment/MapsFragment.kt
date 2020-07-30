@@ -22,12 +22,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_maps.*
 import kotlinx.android.synthetic.main.fragment_maps.view.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MapsFragment : Fragment() , OnMapReadyCallback {
+class MapsFragment : Fragment(), OnMapReadyCallback {
 
     private var isMapReady: Boolean = false
     private lateinit var mMap: GoogleMap
-    private lateinit var viewModel: MapsActivityViewModel
+    private val viewModel by viewModel<MapsActivityViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,8 +39,6 @@ class MapsFragment : Fragment() , OnMapReadyCallback {
         isMapReady = false
 
         getMapFragment()
-
-        initViewModel()
 
         fetchData()
 
@@ -62,14 +61,6 @@ class MapsFragment : Fragment() , OnMapReadyCallback {
         val mapFragment =
             childFragmentManager.fragments[0] as SupportMapFragment?
         mapFragment!!.getMapAsync(this)
-    }
-
-    private fun initViewModel() {
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
-        )
-            .get(MapsActivityViewModel::class.java)
     }
 
     private fun fetchData() {
